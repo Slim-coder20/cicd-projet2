@@ -5,10 +5,18 @@ on:
 
 jobs:
   # ------------------------------------------------------------------
-  # Job 1 : build Frontend
+  # Job 1 : build Frontend and Node-api Backend with Matrix 
   # ------------------------------------------------------------------
   build-frontend:
     runs-on: ubuntu-latest
+    strategy: 
+      matrix: 
+        include:
+          - context_name: ./frontend
+            image_name: ghcr.io/slim-coder20/cicd-projet2/frontend
+          - context_name: ./node-api
+            image_name: ghcr.io/slim-coder20/cicd-projet2/node-api
+          
     permissions:
       packages: write
 
@@ -29,6 +37,9 @@ jobs:
       - name: Build and push
         uses: docker/build-push-action@v7
         with:
-          context: ./frontend
+          context: ${{ matrix.context_name }}
           push: true
-          tags: ghcr.io/slim-coder20/cicd-projet2/frontend:latest
+          tags: ${{ matrix.image_name }}
+          cache-from: type=gha
+          cache-to: type=gha,mode=max
+  
