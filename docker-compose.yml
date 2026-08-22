@@ -9,7 +9,7 @@ services:
     ports:
       - "80:80"
   cypress:
-    image: cypress/included
+    image: cypress/included:13.12.0
     working_dir: /e2e
     volumes:
       - ./frontend:/e2e
