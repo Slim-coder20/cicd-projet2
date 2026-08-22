@@ -56,7 +56,7 @@ jobs:
   # ------------------------------------------------------------------
   # Job 2 : build Frontend and Node-api Backend with Matrix 
   # ------------------------------------------------------------------
-  build-frontend:
+  build-frontend-and-node-api:
     runs-on: ubuntu-latest
     needs: [tests-frontend, tests-backend]
     strategy: 
@@ -98,4 +98,25 @@ jobs:
           tags: ${{ matrix.image_name }}
           cache-from: type=gha
           cache-to: type=gha,mode=max
-  
+  # ------------------------------------------------------------------
+  # Job 3: Test E2End
+  # ------------------------------------------------------------------
+  e2e:
+    runs-on: ubuntu-latest
+    needs: [build-frontend-and-node-api]
+    steps:
+      - name: Checkout
+        uses: actions/checkout@v3
+
+      - name: Login to GitHub Container Registry
+        uses: docker/login-action@v4
+        with:
+          registry: ghcr.io
+          username: ${{ github.actor }}
+          password: ${{ secrets.GITHUB_TOKEN }}
+      - name: lancement des tests e2e  
+        run: |
+            docker compose up --exit-code-from cypress --abort-on-container-exit 
+      - name: clean  
+        run: |
+            docker compose down -v --remove-orphans
